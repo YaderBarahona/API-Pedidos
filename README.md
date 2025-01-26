@@ -41,6 +41,10 @@ cd API-Pedidos
 
 # Instalar dependencias
 npm install
+
+# Instalar Sequelize de forma global
+npm install --save sequelize
+
 ```
 
 ---
