@@ -1,0 +1,518 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API de Pedidos",
+    "version": "1.0.0",
+    "description": "Documentación de la API para la gestión de usuarios y pedidos"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000",
+      "description": "Servidor de desarrollo"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "user1"
+          },
+          "password": {
+            "type": "string",
+            "example": "securePassword123"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 10
+          },
+          "status": {
+            "type": "string",
+            "example": "En preparación"
+          },
+          "total": {
+            "type": "number",
+            "example": 300.0
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2025-01-24T14:23:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2025-01-24T14:23:00.000Z"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/users/register": {
+      "post": {
+        "summary": "Registrar un nuevo usuario",
+        "tags": ["Usuarios"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "description": "Registra un usuario con nombre de usuario y contraseña.",
+        "responses": {
+          "201": {
+            "description": "Usuario registrado exitosamente"
+          },
+          "409": {
+            "description": "El usuario ya está registrado"
+          },
+          "400": {
+            "description": "Error de validación"
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "tags": ["Usuarios"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "description": "Inicia sesión con nombre de usuario y contraseña de un usuario anteriormente registrado.",
+        "responses": {
+          "200": {
+            "description": "Inicio de sesión exitoso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Inicio de sesión exitoso."
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación en los campos enviados",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "El nombre de usuario y la contraseña son obligatorios."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales inválidas",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Credenciales inválidas."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Error interno del servidor."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "summary": "Obtener todos los pedidos",
+        "tags": ["Pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "description": "Obtiene una lista de los pedidos del usuario autenticado",
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Order"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Acceso no autorizado"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo pedido",
+        "tags": ["Pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": { "type": "integer", "example": 3 },
+                        "quantity": { "type": "integer", "example": 2 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "Crea un pedido de un usuario autenticado.",
+        "responses": {
+          "201": {
+            "description": "Pedido creado exitosamente"
+          },
+          "400": {
+            "description": "Error de validación en los datos enviados",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Validación fallida.",
+                  "details": [
+                    {
+                      "field": "items",
+                      "message": "El array de artículos es obligatorio."
+                    },
+                    {
+                      "field": "items[0].product_id",
+                      "message": "El ID del producto es obligatorio."
+                    },
+                    {
+                      "field": "items[0].quantity",
+                      "message": "La cantidad es obligatoria."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Acceso no autorizado"
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Error al crear el pedido."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{id}/status": {
+      "get": {
+        "summary": "Obtener el estado de un pedido por ID",
+        "tags": ["Pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del pedido",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "description": "Obtiene el estado de un pedido en especifico de un usuario autenticado.",
+        "responses": {
+          "200": {
+            "description": "Estado del pedido obtenido exitosamente.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "En preparación"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido no encontrado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Pedido no encontrado."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Acceso no autorizado"
+          },
+          "500": {
+            "description": "Error interno del servidor.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Error al obtener el estado del pedido."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/{id}": {
+      "put": {
+        "summary": "Actualizar uno o más productos dentro de un pedido por ID",
+        "tags": ["Pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del pedido a actualizar",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Datos para actualizar los productos del pedido",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "product_id": {
+                          "type": "integer",
+                          "description": "ID del producto a actualizar"
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "description": "Nueva cantidad del producto"
+                        }
+                      },
+                      "required": ["product_id", "quantity"]
+                    }
+                  }
+                },
+                "required": ["items"]
+              },
+              "example": {
+                "items": [
+                  { "product_id": 1, "quantity": 5 },
+                  { "product_id": 2, "quantity": 3 }
+                ]
+              }
+            }
+          }
+        },
+        "description": "Actualiza las cantidades de los productos de un pedido en especifico de un usuario autenticado.",
+        "responses": {
+          "200": {
+            "description": "Pedido actualizado exitosamente.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pedido actualizado exitosamente.",
+                  "total": 150.0
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error de validación en los datos enviados.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Validación fallida.",
+                  "details": [
+                    {
+                      "field": "items",
+                      "message": "El array de artículos es obligatorio."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Acceso no autorizado"
+          },
+          "404": {
+            "description": "Pedido no encontrado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Pedido no encontrado."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Error al actualizar el pedido."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un pedido por ID",
+        "tags": ["Pedidos"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del pedido a eliminar",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "description": "Elimina un pedido en especifico de un usuario autenticado.",
+        "responses": {
+          "200": {
+            "description": "Pedido eliminado exitosamente.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Pedido eliminado exitosamente."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pedido no encontrado.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Pedido no encontrado."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Acceso no autorizado"
+          },
+          "500": {
+            "description": "Error interno del servidor.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Error al eliminar el pedido."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "Listar productos disponibles",
+        "tags": ["Productos"],
+        "description": "Obtiene una lista de todos los productos disponibles en el sistema.",
+        "responses": {
+          "200": {
+            "description": "Lista de productos obtenida exitosamente.",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 1,
+                    "name": "Smartphone",
+                    "description": "Un teléfono inteligente de alta gama.",
+                    "price": 699.99,
+                    "stock": 50
+                  },
+                  {
+                    "id": 2,
+                    "name": "Laptop",
+                    "description": "Laptop con 16GB de RAM y SSD de 1TB.",
+                    "price": 1299.99,
+                    "stock": 30
+                  }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Error al obtener los productos."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

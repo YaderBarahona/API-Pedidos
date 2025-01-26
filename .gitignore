@@ -1,0 +1,85 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+jspm_packages/
+bower_components/
+
+# Build outputs
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.DS_Store
+Thumbs.db
+
+# Operating system files
+*.swp
+*.lock
+*~
+*.bak
+*.old
+*.orig
+
+# Environment files
+.env
+.env.test
+.env.production
+.env.local
+.env.*.local
+
+# Testing and coverage
+coverage/
+.nyc_output/
+test-output/
+
+# Linter output
+.eslintcache
+.stylelintcache
+
+# TypeScript
+*.tsbuildinfo
+
+# Parcel-bundler
+.cache/
+
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# Firebase
+.firebase/
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Database directory (si está en un directorio específico como "src/database/data")
+src/database/data/
